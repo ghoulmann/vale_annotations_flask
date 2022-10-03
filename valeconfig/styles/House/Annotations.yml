@@ -1,0 +1,7 @@
+extends: existence
+message: "'%s' annotation in text."
+ignorecase: false
+level: warning
+tokens:
+  - FIXME
+  - TODO

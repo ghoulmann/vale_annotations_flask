@@ -1,0 +1,7 @@
+extends: metric
+message: "Try to keep the WPS (%s) below 20."
+link: https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests
+
+formula: |
+    (words/sentences)
+condition: "> 20"

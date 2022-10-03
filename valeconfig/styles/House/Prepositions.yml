@@ -1,0 +1,18 @@
+extends: sequence
+message: "More than 3 prepositions in this sentence"
+level: warning
+# Here, we're counting the number of times a comma appears
+# in a sentence.
+#
+# If it occurs more than 3 times, we'll flag it.
+scope: sentence
+ignorecase: true
+tokens:
+  - tag: IN
+  - pattern: (([a-zA-Z']+ {1}).+)
+  - tag: IN
+  - pattern: (([a-zA-Z']+ {1}).+)
+  - tag: IN
+  - pattern: (([a-zA-Z']+ {1}).+)
+  - tag: IN
+  - pattern: (([a-zA-Z']+ {1}).+)

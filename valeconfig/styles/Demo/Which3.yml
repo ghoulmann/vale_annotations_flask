@@ -1,0 +1,6 @@
+extends: sequence
+level: warning
+message: "The sequence '%s which' might require '%[1]s, which' or '%[1]s that'. Did you mean '%[1]s which'?"
+tokens:
+  - tag: NN|NNS|NNP|NNPS|PRP
+  - pattern: which

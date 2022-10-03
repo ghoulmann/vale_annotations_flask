@@ -1,0 +1,7 @@
+extends: sequence
+message: "'%s %s' is not comparable"
+level: warning
+scope: sentence
+tokens:
+  - tag: RBR|RBS
+  - pattern: absolute|adequate|complete|correct|certain|devoid|entire|'false'|fatal|favorite|final|ideal|impossible|inevitable|infinite|irrevocable|main|manifest|only|paramount|perfect|perpetual|possible|preferable|principal|singular|stationary|sufficient|'true'|unanimous|unavoidable|unbroken|uniform|unique|universal|void|whole

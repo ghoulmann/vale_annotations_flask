@@ -1,0 +1,22 @@
+blackhat
+blacklist
+blind
+dummy
+master
+sanity check
+Sanity Check
+she
+slave
+whitehat
+whitelist
+dummy
+sanity check
+Sanity Check
+blackhat
+whitehat
+master
+slave
+blind
+whitelist
+blacklist
+open kimono

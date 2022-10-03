@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Annotated</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pygments.css') }}">
+  </head>
+  <body>
+    <header>
+
+    </header>
+    <main>
+    <div class="container">
+        {% block content %}
+        {{ content|safe }}
+        {% endblock %}
+    </div>
+    </main>
+  </body>
+</html>

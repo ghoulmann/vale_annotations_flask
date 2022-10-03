@@ -1,0 +1,17 @@
+extends: sequence
+# `%[4]s` is like `%s`, but specifically refers to the 4th token in our
+# sequence.
+message: "Long sequence of prepositional phrases"
+tokens:
+  - tag: IN
+  - pattern: DET
+  - tag: NN|NNS|NNP|NNPS
+  - tag: IN
+  - pattern: DET
+  - tag: NN|NNS|NNP|NNPS
+  - tag: IN
+  - pattern: DET
+  - tag: NN|NNS|NNP|NNPS
+  - tag: IN
+  - pattern: DET
+  - tag: NN|NNS|NNP|NNPS

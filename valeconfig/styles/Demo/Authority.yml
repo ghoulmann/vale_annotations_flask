@@ -1,0 +1,10 @@
+extends: existence
+message: Avoid '%s' in favor of speaking authoritatively
+level: warning
+code: false
+ignorecase: true
+tokens:
+    - might
+    - should
+    - should not
+    - shouldn't
