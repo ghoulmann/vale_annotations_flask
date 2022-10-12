@@ -43,9 +43,11 @@ def upload_file():
     readability = vale_feedback[0]
     valelinted = vale_feedback[1]
     read_time = readtime_of_markdown(source)
+    markdown_source = transform_markdown(source)
     md_with_proselint = markdown.markdown(proselinted, extensions=['md_in_html', 'mdx_truly_sane_lists', 'fenced_code', 'extra', 'toc', 'pymdownx.superfences', 'pymdownx.highlight'], output_format="html5") 
     md_with_vale = markdown.markdown(valelinted, extensions=['md_in_html', 'mdx_truly_sane_lists', 'fenced_code', 'extra', 'toc', 'pymdownx.superfences', 'pymdownx.highlight'], output_format="html5") 
-    return render_template('layout.html', readability=readability, proselint=md_with_proselint, read_time=read_time, vale=md_with_vale)
+    #lintmarkdown(source)
+    return render_template('layout.html', readability=readability, proselint=md_with_proselint, read_time=read_time, vale=md_with_vale, md=markdown_source)
     #return render_template('layout.html', proselint=md_with_proselint, read_time=read_time)
     #return jsonify(valelinted)
     #uploaded_file = request.files['md_file']
@@ -59,6 +61,7 @@ def upload_file():
 
 def proselinter(input):
     errors = json.loads(proselint.tools.errors_to_json(proselint.tools.lint(input, config_file_path='./proselintconfig/config.json')))
+    print(errors)
     return errors
 
 def proselint_annotate(source):
@@ -74,8 +77,10 @@ def proselint_annotate(source):
         else:
             c = "red"
         #lines[int(lint['line'])-1] = lines[int(lint['line'])-1].replace(str(original), f'<span style="color:{c}" title="{m}">{original}</span>')
+        
     #out = '\n'.join(lines)
-        lines[int(lint['line'])-1] = lines[int(lint['line'])-1].replace(str(original), f'<strong><a href="#" style="color:{c}; text-decoration: {c} wavy underline;" data-toggle="tooltip" title="{m}">{original}</a></strong>')
+        lines[int(lint['line'])-1] = lines[int(lint['line'])-1].replace(str(original), f'<bold><a href="#" style="color:{c}; text-decoration: red wavy underline;" data-toggle="tooltip" title="{m}">{original}</a></bold>')
+        print(lines[int(lint['line'])-1])
     out = '\n'.join(lines)
     return out    
 
@@ -108,14 +113,20 @@ def vale_annotate(source):
             c = "info"
         else:
             c = "danger"
-        rule = check['Check']
-        if "Readability" in rule:
-            pass
+        rule = check['Check'].split(".")
+        
         if ">" in m:
             m = m.replace(">", "&gt;")
-        #print(line, sev, m, sep="|")
+        elif "<" in m:
+            m = m.replace("<", "&lt;")
         else:
-            lines[int(line)-1] = lines[int(line)-1].replace(original, f'{original}<span class="badge badge-{c}" title="{sev}:{rule}:{m}">{c}</span> ')
+            pass
+        #print(line, sev, m, sep="|")
+        if ("Readability" in check['Check']) or ("![" in original and "(" in original):
+            pass
+        else:
+            lines[int(line)-1] = lines[int(line)-1].replace(original, f'{original} &nbsp; <span style="font-size:10pt" class="badge badge-{c}" title="{sev}:{rule}:{m}">{rule[1]}</span>')
+
     #out = '\n'.join(lines)
     #out = "No Feedback"
     #return readability, out
@@ -136,6 +147,27 @@ def vale(source):
 
 def readtime_of_markdown(source):
     return of_markdown(source)
+
+def transform_markdown(source):
+
+
+    from pygments import highlight
+    from pygments.lexers.markup import MarkdownLexer
+    from pygments.formatters import HtmlFormatter
+    lexer = MarkdownLexer()
+    formatter = HtmlFormatter(linenos=False, cssclass="source")
+    result = highlight(source, lexer, formatter)
+    print(result)
+    return result
+
+    
+    #source = source.replace("<", "&lt;").replace(">", "&gt;")
+    return source
+
+#def lintmarkdown(source):
+#    from pymarkdown import PyMarkdownLint
+    
+    
 
 if __name__ == '__main__':
    app.run(debug = True)
