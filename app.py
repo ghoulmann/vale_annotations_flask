@@ -125,8 +125,7 @@ def vale_annotate(source):
         if ("Readability" in check['Check']) or ("![" in original and "(" in original):
             pass
         else:
-            lines[int(line)-1] = lines[int(line)-1].replace(original, f'{original} &nbsp; <span style="font-size:10pt" class="badge badge-{c}" title="{sev}:{rule}:{m}">{rule[1]}</span>')
-
+            lines[int(line)-1] = lines[int(line)-1].replace(original, f'{original} &nbsp; <span style="font-size:8pt" class="badge badge-{c} btn-sm" data-placement="top" data-trigger="hover" data-toggle="tooltip" title="{rule[0]}.{rule[1]}: {m} ({start}-{end})">{rule[1]}</span>')
     #out = '\n'.join(lines)
     #out = "No Feedback"
     #return readability, out
