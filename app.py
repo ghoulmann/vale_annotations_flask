@@ -189,7 +189,7 @@ def markdownlinkcheck(path):
         for line in result.stdout:
             url = re.match(r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)", line)
             if url:
-                print(len(url.groups()))
+                print("yes")
             #line = line.replace(url, f'<a href="{url}">{url}</a>')
             #out.append(line)
         return result.stdout
