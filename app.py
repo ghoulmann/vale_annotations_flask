@@ -1,3 +1,4 @@
+from encodings import utf_8
 import os
 from io import StringIO
 import subprocess
@@ -52,12 +53,13 @@ def upload_file():
     valelinted = vale_feedback[1]
     read_time = readtime_of_markdown(source)
     link_check = markdownlinkcheck(temp.name)
+    mdlint = markdownlint(temp.name)
     temp.close()
     markdown_source = transform_markdown(source)
     md_with_proselint = markdown.markdown(proselinted, extensions=['md_in_html', 'mdx_truly_sane_lists', 'fenced_code', 'extra', 'toc', 'pymdownx.superfences', 'pymdownx.highlight'], output_format="html5") 
     md_with_vale = markdown.markdown(valelinted, extensions=['md_in_html', 'mdx_truly_sane_lists', 'fenced_code', 'extra', 'toc', 'pymdownx.superfences', 'pymdownx.highlight'], output_format="html5") 
     
-    return render_template('layout.html', readability=readability, proselint=md_with_proselint, read_time=read_time, vale=md_with_vale, md=markdown_source, link_check=link_check)
+    return render_template('layout.html', readability=readability, proselint=md_with_proselint, read_time=read_time, vale=md_with_vale, md=markdown_source, linkcheck=link_check, mdlint=mdlint)
     #return render_template('layout.html', proselint=md_with_proselint, read_time=read_time)
     #return jsonify(valelinted)
     #uploaded_file = request.files['md_file']
@@ -184,19 +186,51 @@ def markdownlinkcheck(path):
     result = subprocess.run(['/home/rik/.npm-packages/bin/markdown-link-check', path], capture_output=True, text=True)
     if result.stdout:
         import re
-        #regex = re.compile(r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)", re.IGNORECASE)
+        import urllib.parse
+        from markupsafe import Markup
+        regex = re.compile(r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)", re.IGNORECASE)
         out = []
-        for line in result.stdout:
-            url = re.match(r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)", line)
-            if url:
-                print("yes")
-            #line = line.replace(url, f'<a href="{url}">{url}</a>')
-            #out.append(line)
-        return result.stdout
+        lines = result.stdout.split("\n")
+        for line in lines:
+            match = re.search(regex, line)
+            if match:
+                line = line.replace(match.group(), '<a href=\"' + match.group() + '\">' + match.group() + '</a><span class=\"blank\" style=\"display:none;\">')
+                
+                
+                out.append(Markup(line))    
+            elif "FILE:" in line:
+                pass
+            else:
+                out.append(Markup(line))
+        
+        return out
     else:
         return "No Results"
 
-    
+def markdownlint(path):
+    result = subprocess.run(['markdownlint', '--json', path], capture_output=True, text=True)
+    if result.stderr:
+        output = json.loads(result.stderr)
+        lines = []
+        with open(path, 'r') as f:
+            source = f.readlines()
+        
+        for lint in output:
+            ruleCode = lint["ruleNames"][0] 
+            ruleName = lint['ruleNames'][1]
+            ruleDescription = lint['ruleDescription']
+            url = lint['ruleInformation']
+            line = lint['lineNumber']
+            if lint['errorRange']:
+                errorRange = [lint['errorRange'][0], lint['errorRange'][1]]
+                source[line-1] = source[line-1].replace(source[line-1][errorRange[0]-1:errorRange[1]-1], (f'<a href="{url}" title="{ruleDescription}">{source[line-1][errorRange[0]-1:errorRange[1]-1]}</a>\n'))
+                print(source[line-1])
+            errorContext = lint['errorContext']
+            
+        return lines
+
+        
+  
 
 
 if __name__ == '__main__':

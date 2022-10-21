@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Annotated</title>
+    <title>Markdown X-Ray</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -25,7 +25,9 @@
           padding-left: 0in;
           text-indent:  3in;
         }
-        
+        a:link::after {
+          content:"";
+        }
     </style>
   </head>
   <body>
@@ -60,7 +62,15 @@
         <div class="tab-content" id="myTabContent">
           <div class="tab-pane fade show" id="linkcheck" aria-labelledby="linkcheck-tab" role="tabpanel">
             <h1 class="title">Link Check</h1>  
-            <div class="render"><pre>{{ link_check }}</pre></div>
+            <div class="render" style="line-height:0%">
+              {% for line in linkcheck %}
+              
+              <pre>{{ line }}</pre>
+              
+              {% endfor %}
+
+
+            </div>
           </div>
 
           <div class="tab-pane fade show" id="proselint" aria-labelledby="proselint-tab" role="tabpanel">
