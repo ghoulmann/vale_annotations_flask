@@ -53,14 +53,18 @@ def upload_file():
     valelinted = vale_feedback[1]
     read_time = readtime_of_markdown(source)
     link_check = markdownlinkcheck(temp.name)
+    print("beginning markdown lint")
     mdlint = markdownlint(temp.name)
     temp.close()
     markdown_source = transform_markdown(source)
+    
     md_with_proselint = markdown.markdown(proselinted, extensions=['md_in_html', 'mdx_truly_sane_lists', 'fenced_code', 'extra', 'toc', 'pymdownx.superfences', 'pymdownx.highlight'], output_format="html5") 
     md_with_vale = markdown.markdown(valelinted, extensions=['md_in_html', 'mdx_truly_sane_lists', 'fenced_code', 'extra', 'toc', 'pymdownx.superfences', 'pymdownx.highlight'], output_format="html5") 
-    
-    return render_template('layout.html', readability=readability, proselint=md_with_proselint, read_time=read_time, vale=md_with_vale, md=markdown_source, linkcheck=link_check, mdlint=mdlint)
-    #return render_template('layout.html', proselint=md_with_proselint, read_time=read_time)
+    try:
+        return render_template('xray.html', readability=readability, proselint=md_with_proselint, read_time=read_time, vale=md_with_vale, md=markdown_source, linkcheck=link_check, mdlint=mdlint)
+    except:
+        return render_template('xray.html', readability=readability, proselint=md_with_proselint, read_time=read_time, vale=md_with_vale, md=markdown_source, linkcheck=link_check, mdlint=None)
+    #return render_template('xray.html', proselint=md_with_proselint, read_time=read_time)
     #return jsonify(valelinted)
     #uploaded_file = request.files['md_file']
     #if uploaded_file.filename != '':
@@ -68,7 +72,7 @@ def upload_file():
     #    with open(uploaded_file.filename, 'r') as f:
     #        source = f.read()
         # md = markdown.markdown(source, extensions=['mdx_truly_sane_lists', 'fenced_code', 'extra', 'toc', 'smarty', 'pymdownx.superfences', 'pymdownx.highlight'], output_format="html5") 
-    #return render_template('layout.html', content=md)
+    #return render_template('xray.html', content=md)
     
 
 def proselinter(input):
@@ -100,8 +104,11 @@ def proselint_annotate(source):
 def valelinter(input):
     valeconfig = "valeconfig/vale.ini"
     errors = subprocess.run(['/snap/bin/vale', "--ext=.md", "--output=JSON", "--config=" + valeconfig, input], capture_output=True, text=True)
-    errors = json.loads(errors.stdout)['stdin.md']
-    return errors
+    if errors.stdout:
+        errors = json.loads(errors.stdout)['stdin.md']
+        return errors
+    else:
+        return ""
 def vale_annotate(source):
     vale_errors = valelinter(source)
     readability = []
@@ -122,7 +129,7 @@ def vale_annotate(source):
         original = lines[int(line)-1]
         if sev == "warning":
             c = "warning"
-        elif sev == "suggestion":
+        elif sev == "primary":
             c = "info"
         else:
             c = "danger"
@@ -194,7 +201,7 @@ def markdownlinkcheck(path):
         for line in lines:
             match = re.search(regex, line)
             if match:
-                line = line.replace(match.group(), '<a href=\"' + match.group() + '\">' + match.group() + '</a><span class=\"blank\" style=\"display:none;\">')
+                line = line.replace(match.group(), '<a target=\"_blank\" href=\"' + match.group() + '\">' + match.group() + '</a><span class=\"blank\" style=\"display:none;\">')
                 
                 
                 out.append(Markup(line))    
@@ -208,28 +215,39 @@ def markdownlinkcheck(path):
         return "No Results"
 
 def markdownlint(path):
-    result = subprocess.run(['markdownlint', '--json', path], capture_output=True, text=True)
+    result = subprocess.run(['markdownlint', '--config=./mdlintconfig/markdownlintconfig.json', '--json', path], capture_output=True, text=True)
     if result.stderr:
-        output = json.loads(result.stderr)
-        lines = []
+        result = json.loads(result.stderr)
+      
         with open(path, 'r') as f:
             source = f.readlines()
-        
-        for lint in output:
+
+        for lint in result:
             ruleCode = lint["ruleNames"][0] 
             ruleName = lint['ruleNames'][1]
             ruleDescription = lint['ruleDescription']
             url = lint['ruleInformation']
             line = lint['lineNumber']
-            if lint['errorRange']:
-                errorRange = [lint['errorRange'][0], lint['errorRange'][1]]
-                source[line-1] = source[line-1].replace(source[line-1][errorRange[0]-1:errorRange[1]-1], (f'<a href="{url}" title="{ruleDescription}">{source[line-1][errorRange[0]-1:errorRange[1]-1]}</a>\n'))
-                print(source[line-1])
             errorContext = lint['errorContext']
+            errorRange = lint['errorRange']
+            try:
+                segment = source[line-1][errorRange[0]-1:errorRange[1]-1]
+            except:
+                segment = None
+                #source[line-1] = source[line-1][errorRange[0]:errorRange[1]].replace(source[line-1][errorRange[0]-1:errorRange[1]-1], (f'<a href="{url}" title="{ruleDescription}">{source[line-1][errorRange[0]-1:errorRange[1]-1]}</a>\n'))
             
-        return lines
+            
+            if segment:
+                source[line-1] = source[line-1].replace(segment, (f'<a data-placement="bottom" data-trigger="hover" data-toggle="popover" style="text-decoration:red wavy underline;" title="{ruleCode}:{ruleDescription}" data-content="Line {line}\n Context: {errorContext}">{segment}</a>'))
+            elif ruleDescription == "Trailing spaces":
+                source[line-1] = source[line-1] + f'<a data-placement="bottom" data-trigger="hover" data-toggle="popover" style="color:red;text-decoration:red wavy underline;" title="{ruleCode}:{ruleDescription}" data-content="Line {line}\n Context: {errorContext}">&#128997;</a>'
+            else:
+                source[line-1] = source[line-1] + f'<span title="{ruleCode}:{ruleDescription}" data-content="Line {line}\n Context: {errorContext}" data-placement="bottom" data-trigger="hover" data-toggle="popover" class="badge badge-danger">{ruleDescription}</span>' 
 
-        
+
+            
+        return source
+
   
 
 
