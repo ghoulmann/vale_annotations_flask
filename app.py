@@ -129,8 +129,8 @@ def vale_annotate(source):
         original = lines[int(line)-1]
         if sev == "warning":
             c = "warning"
-        elif sev == "primary":
-            c = "info"
+        elif sev == "suggestion":
+            c = "secondary"
         else:
             c = "danger"
         rule = check['Check'].split(".")
@@ -201,8 +201,13 @@ def markdownlinkcheck(path):
         for line in lines:
             match = re.search(regex, line)
             if match:
-                line = line.replace(match.group(), '<a target=\"_blank\" href=\"' + match.group() + '\">' + match.group() + '</a><span class=\"blank\" style=\"display:none;\">')
-                
+                url = match.group()
+                #print(url)
+                #url = url.replace("%7D", "").replace("%5B", "").replace("%5D", "")
+                if "✖" in line:
+                    line = line.replace(url, '<a style=\"color:red;\" target=\"_blank\" href=\"' + url + ' \"/>' + url + '</a>').replace("✖", "<span style='color:red'>✖</span>")
+                else:
+                    line = line.replace(url, '<a target=\"_blank\" href=\"' + url + ' \"/>' + url + '</a>').replace("✓", '<span style="color:green">✓</span>')
                 
                 out.append(Markup(line))    
             elif "FILE:" in line:
