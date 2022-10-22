@@ -130,7 +130,7 @@ def vale_annotate(source):
         if sev == "warning":
             c = "warning"
         elif sev == "suggestion":
-            c = "secondary"
+            c = "primary"
         else:
             c = "danger"
         rule = check['Check'].split(".")
