@@ -2,6 +2,7 @@ from encodings import utf_8
 import os
 from io import StringIO
 import subprocess
+from types import MethodType
 import markdown
 from pygments import highlight
 from pygments.lexers import PythonLexer
@@ -11,6 +12,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 import json
 from readtime import of_markdown
 import tempfile
+
 
 app = Flask(__name__)
 
@@ -28,7 +30,56 @@ def upload():
             if len(chunk) == 0:
                 return
             f.write(chunk)
-    
+
+@app.route('/vale_config', methods=['GET', 'POST'])
+def loadValeConfig():
+    filepath = 'valeconfig/vale.ini'
+    with open(filepath, 'r') as f:
+        content = f.read()
+    if request.method == "GET":
+        presentation = f'<form action = "/vale_config" method="POST"><div class="form-group">\
+            <textarea id="valeconfig" spellcheck="false" name="valeconfig" rows="20" cols="80">{content}</textarea></div>\
+            <button type="submit" class="btn btn-primary">Submit</button>\
+            </form>'
+
+
+        with open(filepath, 'r') as f:
+            content = f.read()
+        return render_template('vale_config.html', header1="Edit Vale Configuration", presentation=presentation)
+
+    if request.method == "POST":
+        content = request.form['valeconfig']
+        with open(filepath, 'w') as f:
+            f.write(content)
+        with open(filepath, 'r') as f:
+            content=f.read()
+        presentation = f'<code><pre>{content}</pre></code>'
+        return render_template('vale_config.html', header1="Vale Configuration", presentation=presentation)
+
+@app.route('/md_config', methods=['GET', 'POST'])
+def loadMdConfig():
+    filepath = 'mdlintconfig/markdownlintconfig.json'
+    with open(filepath, 'r') as f:
+        content = f.read()
+    if request.method == "GET":
+        presentation = f'<form action = "/md_config" method="POST"><div class="form-group">\
+            <textarea id="mdconfig" spellcheck="false" name="mdconfig" rows="20" cols="80">{content}</textarea></div>\
+            <button type="submit" class="btn btn-primary">Submit</button>\
+            </form>'
+
+
+        
+        return render_template('mdlint_config.html', header1="Edit Markdown Lint Configuration", presentation=presentation)
+
+    if request.method == "POST":
+        content = request.form['mdconfig']
+        with open(filepath, 'w') as f:
+            f.write(content)
+        with open(filepath, 'r') as f:
+            content=f.read()
+        presentation = f'<code><pre>{content}</pre></code>'
+        return render_template('vale_config.html', header1="Markdown Lint Configuration", presentation=presentation)
+
 @app.route('/', methods=['POST'])
 def upload_file():
     uploaded_file = request.files['md_file']
@@ -45,7 +96,7 @@ def upload_file():
     
     #lint = subprocess.run(['vale', 'config="./.vale.ini"', source], capture_output=True, text=True)
 
-       
+    stats = getStats(source)       
     proselinted = proselint_annotate(source)
     #vale_feedback = vale_annotations(source)
     vale_feedback = vale_annotate(source)
@@ -61,9 +112,9 @@ def upload_file():
     md_with_proselint = markdown.markdown(proselinted, extensions=['md_in_html', 'mdx_truly_sane_lists', 'fenced_code', 'extra', 'toc', 'pymdownx.superfences', 'pymdownx.highlight'], output_format="html5") 
     md_with_vale = markdown.markdown(valelinted, extensions=['md_in_html', 'mdx_truly_sane_lists', 'fenced_code', 'extra', 'toc', 'pymdownx.superfences', 'pymdownx.highlight'], output_format="html5") 
     try:
-        return render_template('xray.html', readability=readability, proselint=md_with_proselint, read_time=read_time, vale=md_with_vale, md=markdown_source, linkcheck=link_check, mdlint=mdlint)
+        return render_template('xray.html', readability=readability, proselint=md_with_proselint, read_time=read_time, vale=md_with_vale, md=markdown_source, linkcheck=link_check, mdlint=mdlint, stats=stats)
     except:
-        return render_template('xray.html', readability=readability, proselint=md_with_proselint, read_time=read_time, vale=md_with_vale, md=markdown_source, linkcheck=link_check, mdlint=None)
+        return render_template('xray.html', readability=readability, proselint=md_with_proselint, read_time=read_time, vale=md_with_vale, md=markdown_source, linkcheck=link_check, mdlint=None, stats=stats)
     #return render_template('xray.html', proselint=md_with_proselint, read_time=read_time)
     #return jsonify(valelinted)
     #uploaded_file = request.files['md_file']
@@ -253,7 +304,16 @@ def markdownlint(path):
             
         return source
 
-  
+def getStats(md):
+    from bs4 import BeautifulSoup
+    from passive.passive import main as passive
+    from readability import getmeasures as readability
+    html = markdown.markdown(md)
+    soup = BeautifulSoup(html, features='html.parser')
+    text = soup.get_text()
+    result = readability(text, lang='en')
+    return (round(float(100 * (len(passive(text))/result['sentence info']['sentences'])), 0)), round(result['word usage']['tobeverb']/result['sentence info']['sentences'],2)
+    
 
 
 if __name__ == '__main__':

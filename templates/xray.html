@@ -52,23 +52,40 @@
     <header>
       <!-- Fixed navbar -->
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="#">Markdown X-Ray</a>
+        <a class="navbar-brand" href="/">Markdown X-Ray</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
           <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-              <a class="nav-link" href="/">Upload<span class="sr-only"></span></a>
+              <a class="nav-link" href="/">Upload<span class="sr-only">(Current)</span></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="#">X-Ray &#9650;<span class="sr-only">(Current)</span></a>
+                <a class="nav-link active" href="#">X-Ray</a>
+            </li>
+            
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Configurations</a>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="/md_config">MarkdownLint Config</a>
+                  <a class="dropdown-item" href="/vale_config">Vale Config</a>
+                </div>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled"><img src="https://img.shields.io/badge/read_time-{{read_time}}-black" /></a>   
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled"><img src="https://img.shields.io/badge/percent_passive-{{ stats[0] }}-black"></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled"><img src="https://img.shields.io/badge/weak_verbs%2Fsentence-{{ stats[1] }}-black"></a>
             </li>
           </ul>
           <span class="form-inline mt-2 mt-md-0">
-          <input class="form-control mr-sm-2" type="text" id="search" aria-label="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" name="Search" onclick="search(id)">Search</button>
-          </span>
+            <input class="form-control mr-sm-2" type="text" id="search" aria-label="Search">
+            <button class="btn btn-outline-light my-2 my-sm-0" name="Search" onclick="search(id)">Search</button>
+        </span>
         </div>
       </nav>
     </header>
@@ -83,7 +100,6 @@
 
 
         <div class="container">  
-          <p><img src="https://img.shields.io/badge/readtime-{{read_time}}-green" /></p>
 
         <ul class="nav nav-tabs" id="myTab">
           <li class="nav-item">
@@ -129,7 +145,7 @@
 
           <div class="tab-pane fade show" id="proselint" aria-labelledby="proselint-tab" role="tabpanel">
             <h1 class="display-4 title">Proselint</h1>  
-            <div class="render">{{ proselint|safe }}</div>
+            <div spellcheck="true" class="render">{{ proselint|safe }}</div>
           </div>
         <div class="tab-pane fade show" id="readability" aria-labelledby="readability-tab" role="tabpanel">
           
@@ -146,7 +162,9 @@
         </div>
         <div class="tab-pane fade show" id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
           <h1 class="display-4 title">Markdown Source</h1>
+          <div spellcheck="true">
           {{ md|safe }}
+          </div>
         </div>
         <div class="tab-pane fade show" id="mdlint" role="tabpanel" aria-labelledby="mdlint-tab">
           <h1 class="display-4 title">Markdown Lint</h1>
