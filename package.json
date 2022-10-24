@@ -1,5 +1,37 @@
 {
   "devDependencies": {
     "markdownlint": "^0.26.2"
-  }
+  },
+  "name": "markdown_xray",
+  "version": "10.22.0",
+  "description": "Markdown lint with vale, markdownlint, markdown-link-check",
+  "main": "index.js",
+  "dependencies": {
+    "argparse": "^2.0.1",
+    "entities": "^3.0.1",
+    "linkify-it": "^4.0.1",
+    "markdown-it": "^13.0.1",
+    "markdown-link-check": "^3.10.3",
+    "mdurl": "^1.0.1",
+    "uc.micro": "^1.0.6"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ghoulmann/vale_annotations_flask.git"
+  },
+  "keywords": [
+    "markdown",
+    "English",
+    "tech",
+    "writing"
+  ],
+  "author": "Rik Goldman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ghoulmann/vale_annotations_flask/issues"
+  },
+  "homepage": "https://github.com/ghoulmann/vale_annotations_flask#readme"
 }
