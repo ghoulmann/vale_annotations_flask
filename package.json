@@ -1,6 +1,5 @@
 {
-  "devDependencies": {
-    "markdownlint": "^0.26.2"
+  "devDependencies": {  
   },
   "name": "markdown_xray",
   "version": "10.22.0",
@@ -13,10 +12,15 @@
     "markdown-it": "^13.0.1",
     "markdown-link-check": "^3.10.3",
     "mdurl": "^1.0.1",
-    "uc.micro": "^1.0.6"
+    "uc.micro": "^1.0.6",
+    "markdownlint": "^0.26.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "update": "npm run update:node && npm run update:python",
+    "update:python": "pipenv update",
+    "install": "pipenv install && pipenv run python -m nltk.downloader -d nltk_data all",
+    "start": "pipenv run python app.py"
+
   },
   "repository": {
     "type": "git",
@@ -33,5 +37,14 @@
   "bugs": {
     "url": "https://github.com/ghoulmann/vale_annotations_flask/issues"
   },
+  "python": {
+      "detection": [
+          "Pipfile", "requirements.txt", "python3"
+        ],
+        "install": {
+            "Pipfile": "pipenv install",
+            "requirements.txt": null
+        }
+    },
   "homepage": "https://github.com/ghoulmann/vale_annotations_flask#readme"
 }

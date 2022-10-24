@@ -12,9 +12,10 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 import json
 from readtime import of_markdown
 import tempfile
-
+import nltk
 
 app = Flask(__name__)
+nltk.data.path = [str(pathlib.Path().absolute()) + "/nltk_data/"]
 
 @app.route('/')
 def index():
