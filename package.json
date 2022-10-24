@@ -18,7 +18,7 @@
   "scripts": {
     "update": "npm run update:node && npm run update:python",
     "update:python": "pipenv update",
-    "install": "pipenv install && pipenv run python -m nltk.downloader -d nltk_data brown && && pipenv run python -m nltk.downloader -d nltk_data brown",
+    "install": "pipenv install && pipenv run python -m nltk.downloader -d nltk_data brown && && pipenv run python -m nltk.downloader -d nltk_data punkt",
     "start": "pipenv run python app.py"
 
   },
