@@ -139,4 +139,4 @@ Privacy
 node_modules/
 package-lock.json
 .package-lock.json
-Pipefile.lock
+
