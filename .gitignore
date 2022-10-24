@@ -1,6 +1,7 @@
 __pycache_/
 env/
 nlktk_data/
+tagger.pkl
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
